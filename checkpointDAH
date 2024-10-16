@@ -1,0 +1,163 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: Home(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+//A classe home vai gerenciar o estado da nossa aplicação:
+//A tela em execução e os valores dos campos
+class Home extends StatefulWidget {
+//Utilizamos o override para
+//sobrescrever o comportamento de criação da nossa aplicação
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+//Esta classe representa a nossa view
+//ela extende o Estado da aplicação que criamos anteriormente
+class _HomeState extends State<Home> {
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController pesoController = TextEditingController();
+  TextEditingController alturaController = TextEditingController();
+  String _resultado = "****";
+  String _resultado2 = "**";
+
+  void _reset() {
+    pesoController.text = "";
+    alturaController.text = "";
+
+    setState(() {
+      _resultado = "****";
+      _resultado2 = "**";
+      _formKey = GlobalKey<FormState>();
+    });
+  }
+
+  /*void _calcularCombustivelIdeal() {
+    setState(() {
+      double vlrAlcool =
+          double.parse(pesoController.text.replaceAll(',', '.'));
+      double vlrGasolina =
+          double.parse(alturaController.text.replaceAll(',', '.'));
+
+      double proporcao = vlrAlcool / vlrGasolina;
+      _resultado =
+          proporcao < 0.7 ? "Abasteça com Álcool" : "Abasteça com Gasolina";
+    });
+  }*/
+
+  void _calcularIMC() {
+    setState(() {
+      double peso = double.parse(pesoController.text);
+      double altura = double.parse(alturaController.text);
+
+      double imc = peso / (altura * altura);
+
+      _resultado = "o seu IMC é de ${imc.toStringAsFixed(2)}";
+
+      if (imc < 18) {
+        _resultado2 = "Você está abaixo do peso";
+      } else if (imc >= 18 && imc <= 25) {
+        _resultado2 = "Você está no peso ideal";
+      } else if (imc > 25 && imc <= 30) {
+        _resultado2 = "Você está acima do peso";
+      } else if (imc > 30) {
+        _resultado2 = "Você está obeso";
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Claculadora de IMC",
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.lightBlue[900],
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.refresh, color: Colors.white),
+              onPressed: () {
+                _reset();
+              })
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Icon(
+                Icons.face,
+                size: 150.0,
+                color: Colors.lightBlue[900],
+              ),
+              TextFormField(
+                controller: pesoController,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Informe seu peso";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                    labelText: "Peso",
+                    labelStyle: TextStyle(color: Colors.lightBlue[900])),
+                style: TextStyle(color: Colors.lightBlue[900], fontSize: 26.0),
+              ),
+              TextFormField(
+                controller: alturaController,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Informe sua altura";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                    labelText: "Altura",
+                    labelStyle: TextStyle(color: Colors.lightBlue[900])),
+                style: TextStyle(color: Colors.lightBlue[900], fontSize: 26.0),
+              ),
+              Padding(
+                  padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                  child: Container(
+                      height: 50.0,
+                      child: ElevatedButton(
+                        child: Text("Calcule",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 26.0)),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.lightBlue[900]),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _calcularIMC();
+                          }
+                        },
+                      ))),
+              Text(_resultado,
+                  textAlign: TextAlign.center,
+                  style:
+                      TextStyle(color: Colors.lightBlue[900], fontSize: 26.0)),
+              Text(_resultado2,
+                  textAlign: TextAlign.center,
+                  style:
+                      TextStyle(color: Colors.lightBlue[900], fontSize: 26.0))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
